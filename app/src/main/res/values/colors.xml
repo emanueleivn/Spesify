@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primari -->
+    <color name="colorPrimary">#B2F8B5</color> <!-- Verde basilico -->
+    <color name="colorPrimaryDark">#63A867</color> <!-- Verde scuro -->
+    <color name="colorOnPrimary">#FFFFFF</color>
+
+    <!-- Secondari -->
+    <color name="colorSecondary">#DE8282</color> <!-- Rosso pomodoro -->
+    <color name="colorSecondaryVariant">#FFC571</color> <!-- Arancio carota -->
+    <color name="colorOnSecondary">#FFFFFF</color>
+
+    <!-- Background e Surface -->
+    <color name="colorBackground">#FAFAFA</color> <!-- Bianco panna -->
+    <color name="colorSurface">#FFFFFF</color> <!-- Bianco puro -->
+    <color name="colorOnBackground">#212121</color>
+    <color name="colorOnSurface">#424242</color>
+
+    <!-- Colori generici (puoi rimuoverli se inutilizzati) -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
