@@ -1,10 +1,9 @@
 package com.manele.spesify.presentation
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -12,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -125,7 +125,7 @@ fun ShoppingListsScreen(
                     itemsIndexed(shoppingLists) { index, list ->
                         ShoppingListItem(
                             list = list,
-                            index = index, // passiamo anche l'indice
+                            index = index,
                             navController = navController,
                             viewModel = viewModel,
                             onLongPress = { bottomSheetShoppingList = it }
@@ -175,7 +175,16 @@ fun ShoppingListsScreen(
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = {
-                            // Chiede conferma per l'eliminazione
+                            // TODO: implement functionality
+                            bottomSheetShoppingList = null
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Svuota lista")
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Button(
+                        onClick = {
                             shoppingListToDelete = list
                             bottomSheetShoppingList = null
                         },
@@ -218,10 +227,13 @@ fun ShoppingListsScreen(
                 }
             },
             dismissButton = {
-                Button(onClick = {
-                    showRenameDialog = false
-                    listForRename = null
-                }) {
+                Button(
+                    onClick = {
+                        showRenameDialog = false
+                        listForRename = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                ) {
                     Text("Annulla")
                 }
             }
@@ -290,10 +302,13 @@ fun ShoppingListsScreen(
                 }
             },
             dismissButton = {
-                Button(onClick = {
-                    showNewListDialog = false
-                    newListError = ""
-                }) {
+                Button(
+                    onClick = {
+                        showNewListDialog = false
+                        newListError = ""
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                ) {
                     Text("Annulla")
                 }
             }
@@ -301,7 +316,6 @@ fun ShoppingListsScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShoppingListItem(
     list: ShoppingList,
@@ -325,10 +339,7 @@ fun ShoppingListItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 6.dp)
-            .combinedClickable(
-                onClick = { navController.navigate(Screen.ShoppingListDetail.createRoute(list.id)) },
-                onLongClick = { onLongPress(list) }
-            ),
+            .clickable { navController.navigate(Screen.ShoppingListDetail.createRoute(list.id)) },
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -356,6 +367,14 @@ fun ShoppingListItem(
                 Text(
                     text = "Totale: €${"%.2f".format(list.total)}",
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
+                )
+            }
+            IconButton(
+                onClick = { onLongPress(list) }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Opzioni"
                 )
             }
         }
