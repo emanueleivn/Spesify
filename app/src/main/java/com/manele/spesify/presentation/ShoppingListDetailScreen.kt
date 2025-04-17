@@ -3,7 +3,6 @@ package com.manele.spesify.presentation
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,19 +27,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.manele.spesify.R
 import com.manele.spesify.model.Product
 import com.manele.spesify.repo.ShoppingListRepository
 import kotlin.math.roundToInt
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.ui.graphics.Color
-import androidx.core.content.ContextCompat
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.FractionalThreshold
 import androidx.wear.compose.material.rememberSwipeableState
 import androidx.wear.compose.material.swipeable
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,10 +145,10 @@ fun ShoppingListDetailScreen(
                         items = sortedProducts,
                         key = { it.id }
                     ) { product ->
-                        ProductItemBottomSheet(
+                        ProductItem(
                             product = product,
                             cardColor = cardColor,
-                            onLongPress = { bottomSheetProduct = product },
+                            onOptionsClick = { bottomSheetProduct = product },
                             onSwipeRight = { viewModel.markAsPurchased(product) },
                             onSwipeLeft = { viewModel.restoreProduct(product) }
                         )
@@ -193,10 +194,15 @@ fun ShoppingListDetailScreen(
                 }
             },
             dismissButton = {
-                Button(onClick = { productToDelete = null }) {
+                Button(
+                    onClick = { productToDelete = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+                ) {
                     Text("Annulla")
                 }
-            }
+            },
+            titleContentColor = Color.Black,
+            textContentColor = Color.Black
         )
     }
 
@@ -235,10 +241,10 @@ fun ShoppingListDetailScreen(
 
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun ProductItemBottomSheet(
+fun ProductItem(
     product: Product,
     cardColor: Color,
-    onLongPress: () -> Unit,
+    onOptionsClick: () -> Unit,
     onSwipeRight: () -> Unit = {},
     onSwipeLeft: () -> Unit = {}
 ) {
@@ -272,9 +278,6 @@ fun ProductItemBottomSheet(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 6.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(onLongPress = { onLongPress() })
-            }
             .swipeable(
                 state = swipeableState,
                 anchors = anchors,
@@ -296,7 +299,8 @@ fun ProductItemBottomSheet(
                     text = product.name,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None, color= Color.Black
+                        textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None,
+                        color = Color.Black
                     )
                 )
                 Text(
@@ -304,10 +308,18 @@ fun ProductItemBottomSheet(
                     color = Color.Black
                 )
             }
+            IconButton(
+                onClick = onOptionsClick
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Opzioni",
+                    tint = Color.Black
+                )
+            }
         }
     }
 }
-
 
 @Composable
 fun TotalPrice(products: List<Product>) {
@@ -386,7 +398,10 @@ fun AddProductDialog(
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+            ) {
                 Text("Annulla")
             }
         }
@@ -456,7 +471,10 @@ fun EditProductDialog(
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+            ) {
                 Text("Annulla")
             }
         }

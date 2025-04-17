@@ -232,11 +232,13 @@ fun ShoppingListsScreen(
                         showRenameDialog = false
                         listForRename = null
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
                 ) {
                     Text("Annulla")
                 }
-            }
+            },
+            titleContentColor = Color.Black,
+            textContentColor = Color.Black
         )
     }
 
@@ -254,10 +256,13 @@ fun ShoppingListsScreen(
                 }
             },
             dismissButton = {
-                Button(onClick = { shoppingListToDelete = null }) {
+                Button(onClick = { shoppingListToDelete = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)) {
                     Text("Annulla")
                 }
-            }
+            },
+            titleContentColor = Color.Black,
+            textContentColor = Color.Black
         )
     }
 
@@ -307,11 +312,13 @@ fun ShoppingListsScreen(
                         showNewListDialog = false
                         newListError = ""
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
                 ) {
                     Text("Annulla")
                 }
-            }
+            },
+            titleContentColor = Color.Black,
+            textContentColor = Color.Black
         )
     }
 }
@@ -374,7 +381,8 @@ fun ShoppingListItem(
             ) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Opzioni"
+                    contentDescription = "Opzioni",
+                    tint = Color.Black
                 )
             }
         }
