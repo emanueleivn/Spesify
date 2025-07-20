@@ -13,4 +13,5 @@ interface ShoppingListRepository {
     suspend fun addProductToList(listId: Long, product: Product)
     suspend fun updateProductInList(listId: Long, product: Product)
     suspend fun removeProductFromList(listId: Long, productId: Long)
+    suspend fun clearProductsFromList(listId: Long)
 }

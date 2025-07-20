@@ -175,7 +175,7 @@ fun ShoppingListsScreen(
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         onClick = {
-                            // TODO: implement functionality
+                            viewModel.clearProductsFromList(list.id)
                             bottomSheetShoppingList = null
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -312,7 +312,8 @@ fun ShoppingListsScreen(
                         showNewListDialog = false
                         newListError = ""
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray
+                    )
                 ) {
                     Text("Annulla")
                 }

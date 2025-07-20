@@ -85,4 +85,15 @@ class ShoppingListRepositoryImpl(
             shoppingListDao.insert(ShoppingListEntity(list.id, list.title, newTotal))
         }
     }
+
+    override suspend fun clearProductsFromList(listId: Long) {
+        val list = getShoppingListById(listId)
+        if (list != null) {
+            list.products.forEach { product ->
+                removeProductFromList(listId, product.id)
+            }
+        }
+    }
+
+
 }

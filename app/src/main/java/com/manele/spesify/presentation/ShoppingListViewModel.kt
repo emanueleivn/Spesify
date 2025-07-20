@@ -64,5 +64,10 @@ class ShoppingListViewModel(private val repository: ShoppingListRepository) : Vi
         }
     }
 
-
+    fun clearProductsFromList(listId: Long) {
+        viewModelScope.launch {
+            repository.clearProductsFromList(listId)
+            loadShoppingLists()
+        }
+    }
 }
