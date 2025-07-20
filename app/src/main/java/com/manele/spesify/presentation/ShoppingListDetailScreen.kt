@@ -51,23 +51,24 @@ fun ShoppingListDetailScreen(
 ) {
     val viewModel: ProductViewModel =
         viewModel(factory = ProductViewModelFactory(repository, listId))
+
     val products by viewModel.products.collectAsState()
     val editingProduct by viewModel.editingProduct.collectAsState()
-    var shoppingListTitle by remember { mutableStateOf("Lista della Spesa") }
     val showAddDialog by viewModel.showAddProductDialog.collectAsState()
+
+    var shoppingListTitle by remember { mutableStateOf("Lista della Spesa") }
     var productToDelete by remember { mutableStateOf<Product?>(null) }
     var bottomSheetProduct by remember { mutableStateOf<Product?>(null) }
+
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    // Colori disponibili
     val colors = listOf(
-        Color(ContextCompat.getColor(LocalContext.current,R.color.colorPrimary)),
+        Color(ContextCompat.getColor(LocalContext.current, R.color.colorPrimary)),
         MaterialTheme.colorScheme.secondaryContainer,
         Color(0xFFD2C9EE)
     )
     var cardColor by remember { mutableStateOf(colors[0]) }
 
-    // Recupera titolo e colore della lista
     LaunchedEffect(listId) {
         val shoppingList = repository.getShoppingListById(listId)
         shoppingListTitle = shoppingList?.title ?: "Lista della Spesa"
@@ -83,7 +84,7 @@ fun ShoppingListDetailScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TopAppBar(
+                CenterAlignedTopAppBar(
                     title = {
                         Text(
                             text = shoppingListTitle,
@@ -96,6 +97,7 @@ fun ShoppingListDetailScreen(
                         }
                     }
                 )
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -104,16 +106,23 @@ fun ShoppingListDetailScreen(
                 ) {
                     Image(
                         painter = painterResource(R.drawable.products),
-                        contentDescription = "Background Image",
+                        contentDescription = "Prodotti",
                         modifier = Modifier
                             .fillMaxSize()
                             .alpha(0.6f),
                         contentScale = ContentScale.Crop
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                TotalPrice(products)
-                Spacer(modifier = Modifier.height(4.dp))
+            }
+        },
+        bottomBar = {
+            Surface(
+                shadowElevation = 4.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+            ) {
+                TotalPriceBar(products)
             }
         },
         floatingActionButton = {
@@ -121,12 +130,16 @@ fun ShoppingListDetailScreen(
                 Icon(Icons.Default.Add, contentDescription = "Aggiungi")
             }
         }
-    ) { padding ->
+    ) { paddingValues ->
         val sortedProducts = remember(products) {
             products.sortedWith(compareBy<Product> { it.isPurchased }.thenBy { it.id })
         }
 
-        Column(modifier = Modifier.padding(padding)) {
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
             if (sortedProducts.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -153,9 +166,8 @@ fun ShoppingListDetailScreen(
                             onSwipeLeft = { viewModel.restoreProduct(product) }
                         )
                     }
-                    item {
-                        Spacer(modifier = Modifier.height(80.dp))
-                    }
+
+                    item { Spacer(modifier = Modifier.height(80.dp)) }
                 }
             }
         }
@@ -170,70 +182,62 @@ fun ShoppingListDetailScreen(
         )
     }
 
-    if (editingProduct != null) {
+    editingProduct?.let { prod ->
         EditProductDialog(
-            product = editingProduct!!,
+            product = prod,
             onDismiss = { viewModel.dismissEditProductDialog() },
-            onSave = { updatedProduct ->
-                viewModel.updateProduct(updatedProduct)
-            }
+            onSave = { updatedProduct -> viewModel.updateProduct(updatedProduct) }
         )
     }
 
-    if (productToDelete != null) {
+    productToDelete?.let { prod ->
         AlertDialog(
             onDismissRequest = { productToDelete = null },
-            title = { Text("Conferma eliminazione") },
-            text = { Text("Sei sicuro di voler eliminare \"${productToDelete!!.name}\"?") },
+            title = { Text("Conferma eliminazione")},
+            text = { Text(
+                "Sei sicuro di voler eliminare \"${prod.name}\"?"
+                , color = Color.Black
+                    )
+            },
             confirmButton = {
                 Button(onClick = {
-                    viewModel.deleteProduct(productToDelete!!.id)
+                    viewModel.deleteProduct(prod.id)
                     productToDelete = null
-                }) {
-                    Text("Elimina")
-                }
+                }) { Text("Elimina") }
             },
             dismissButton = {
                 Button(
                     onClick = { productToDelete = null },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
-                ) {
-                    Text("Annulla")
-                }
-            },
-            titleContentColor = Color.Black,
-            textContentColor = Color.Black
+                ) { Text("Annulla") }
+            }
         )
     }
 
-    bottomSheetProduct?.let { product ->
+    bottomSheetProduct?.let { prod ->
         ModalBottomSheet(
             onDismissRequest = { bottomSheetProduct = null },
             sheetState = sheetState
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Opzioni per \"${product.name}\"", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(16.dp))
+                Text("Opzioni per \"${prod.name}\"", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        viewModel.showEditProductDialog(product)
+                        viewModel.showEditProductDialog(prod)
                         bottomSheetProduct = null
                     },
                     modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Modifica")
-                }
-                Spacer(modifier = Modifier.height(8.dp))
+                ) { Text("Modifica") }
+                Spacer(Modifier.height(8.dp))
                 Button(
                     onClick = {
-                        productToDelete = product
+                        productToDelete = prod
                         bottomSheetProduct = null
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                     modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Elimina")
-                }
+                ) { Text("Elimina") }
             }
         }
     }
@@ -250,26 +254,21 @@ fun ProductItem(
 ) {
     val isCompleted = product.isPurchased
     val context = LocalContext.current
-
-    val swipeableState = rememberSwipeableState(initialValue = 0)
+    val swipeState = rememberSwipeableState(initialValue = 0)
     val swipeThreshold = 150f
-    val anchors = mapOf(
-        0f to 0,
-        swipeThreshold to 1,
-        -swipeThreshold to -1
-    )
+    val anchors = mapOf(0f to 0, swipeThreshold to 1, -swipeThreshold to -1)
 
-    LaunchedEffect(swipeableState.currentValue) {
-        when (swipeableState.currentValue) {
+    /* Swipe */
+    LaunchedEffect(swipeState.currentValue) {
+        when (swipeState.currentValue) {
             1 -> {
-                onSwipeRight()
-                Toast.makeText(context, "Acquistato", Toast.LENGTH_SHORT).show()
-                swipeableState.snapTo(0)
+                onSwipeRight(); Toast.makeText(context, "Acquistato", Toast.LENGTH_SHORT).show()
+                swipeState.snapTo(0)
             }
+
             -1 -> {
-                onSwipeLeft()
-                Toast.makeText(context, "Ripristinato", Toast.LENGTH_SHORT).show()
-                swipeableState.snapTo(0)
+                onSwipeLeft(); Toast.makeText(context, "Ripristinato", Toast.LENGTH_SHORT).show()
+                swipeState.snapTo(0)
             }
         }
     }
@@ -279,7 +278,7 @@ fun ProductItem(
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 6.dp)
             .swipeable(
-                state = swipeableState,
+                state = swipeState,
                 anchors = anchors,
                 thresholds = { _, _ -> FractionalThreshold(0.3f) },
                 orientation = Orientation.Horizontal
@@ -289,47 +288,49 @@ fun ProductItem(
     ) {
         Row(
             modifier = Modifier
-                .offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
+                .offset { IntOffset(swipeState.offset.value.roundToInt(), 0) }
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(Modifier.weight(1f)) {
                 Text(
                     text = product.name,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None,
+                        textDecoration = if (isCompleted) TextDecoration.LineThrough
+                        else TextDecoration.None,
                         color = Color.Black
                     )
                 )
                 Text(
-                    text = "Quantità: ${product.quantity} | Costo unità: ${product.unitPrice}€",
+                    "Quantità: ${product.quantity} | Costo unità: ${product.unitPrice}€",
                     color = Color.Black
                 )
             }
-            IconButton(
-                onClick = onOptionsClick
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Opzioni",
-                    tint = Color.Black
-                )
+            IconButton(onClick = onOptionsClick) {
+                Icon(Icons.Default.MoreVert, contentDescription = "Opzioni", tint = Color.Black)
             }
         }
     }
 }
 
 @Composable
-fun TotalPrice(products: List<Product>) {
+fun TotalPriceBar(products: List<Product>) {
     val total = products.sumOf { it.totalPrice() }
-    Text(
-        text = "Totale complessivo: €${"%.2f".format(total)}",
-        style = MaterialTheme.typography.bodyLarge,
-        modifier = Modifier.padding(bottom = 8.dp),
-        textAlign = TextAlign.Center
-    )
+    Surface(
+        tonalElevation = 1.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Totale: €${"%.2f".format(total)}",
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp)
+        )
+    }
 }
 
 @Composable
