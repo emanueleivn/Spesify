@@ -2,13 +2,11 @@ package com.manele.spesify.core.data.dao
 
 import com.manele.spesify.core.domain.Product
 import com.manele.spesify.core.domain.ShoppingList
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class ProductDao(

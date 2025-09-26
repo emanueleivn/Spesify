@@ -12,6 +12,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class UserDao(
+
     private val firestore: FirebaseFirestore,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
