@@ -1,4 +1,5 @@
 package com.manele.spesify.core.data.dao
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.manele.spesify.core.domain.Product
 import com.manele.spesify.core.domain.ShoppingList

@@ -17,7 +17,7 @@ class ProductDao(
     fun observeProducts(userId: String, listId: String): Flow<Map<Product, Int>> =
         shoppingListDao.observeShoppingList(userId, listId)
             .filterNotNull()
-            .map(ShoppingList::products)
+            .map {it.products}
 
     suspend fun upsertProduct(
         userId: String,
