@@ -6,11 +6,12 @@
         android:icon="@android:drawable/sym_def_app_icon"
         android:label="Spesify"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Material3.DayNight.NoActionBar">
+        android:theme="@style/Theme.Spesify"
+    >
         <activity
-            android:name="com.manele.spesify.MainActivity"
+            android:name="com.manele.spesify.app.MainActivity"
             android:exported="true"
-            android:label="Spesify">
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
