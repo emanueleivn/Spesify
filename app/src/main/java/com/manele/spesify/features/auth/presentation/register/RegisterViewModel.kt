@@ -72,10 +72,11 @@ class RegisterViewModel(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             when (val result = registerUserUseCase(
                 User(
+                    id = "",
                     userName = state.userName.trim(),
                     email = state.email.trim(),
-                    password = state.password,
                 ),
+                state.password,
             )) {
                 is AuthResult.Success -> _uiState.update { current ->
                     current.copy(isLoading = false, errorMessage = null)

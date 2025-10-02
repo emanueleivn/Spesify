@@ -23,9 +23,9 @@ interface AuthorizationRepository {
     suspend fun login(credentials: AuthCredentials): AuthResult
 
     /**
-     * Attempts to register a new [user].
+     * Attempts to register a new [user] with the provided [password].
      */
-    suspend fun register(user: User): AuthResult
+    suspend fun register(user: User, password: String): AuthResult
 
     /**
      * Clears the current authorization session.

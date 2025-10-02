@@ -27,7 +27,7 @@ class ProductDao(
     ) {
         withContext(dispatcher) {
             val currentList = shoppingListDao.getShoppingList(userId, listId)
-                ?: ShoppingList(title = listId)
+                ?: ShoppingList(id = listId, title = listId)
             val updatedProducts = currentList.products.toMutableMap().apply {
                 put(product, quantity)
             }

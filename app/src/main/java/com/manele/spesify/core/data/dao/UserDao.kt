@@ -24,7 +24,8 @@ class UserDao(
                     close(error)
                     return@addSnapshotListener
                 }
-                val user = snapshot?.toObject(UserDocument::class.java)?.toDomain()
+                val user = snapshot?.toObject(UserDocument::class.java)
+                    ?.toDomain(snapshot.id)
                 trySend(user).isSuccess
             }
         awaitClose { registration.remove() }
@@ -32,15 +33,30 @@ class UserDao(
 
     suspend fun getUser(userId: String): User? = withContext(dispatcher) {
         val snapshot = usersCollection().document(userId).get().await()
-        snapshot.toObject(UserDocument::class.java)?.toDomain()
+        snapshot.toObject(UserDocument::class.java)?.toDomain(snapshot.id)
     }
 
     suspend fun upsertUser(user: User) {
         withContext(dispatcher) {
-            usersCollection().document(user.userName)
+            require(user.id.isNotBlank()) { "User id must not be blank" }
+            usersCollection().document(user.id)
                 .set(user.toDocument())
                 .await()
         }
+    }
+
+    suspend fun findUserByUserName(userName: String): User? = withContext(dispatcher) {
+        val normalizedUserName = userName.trim()
+        if (normalizedUserName.isEmpty()) {
+            return@withContext null
+        }
+        val query = usersCollection()
+            .whereEqualTo(FIELD_USER_NAME, normalizedUserName)
+            .limit(1)
+            .get()
+            .await()
+        val document = query.documents.firstOrNull() ?: return@withContext null
+        document.toObject(UserDocument::class.java)?.toDomain(document.id)
     }
 
     suspend fun deleteUser(userId: String) {
@@ -54,22 +70,21 @@ class UserDao(
     private fun User.toDocument(): UserDocument = UserDocument(
         userName = userName,
         email = email,
-        password = password,
     )
 
     private data class UserDocument(
         val userName: String = "",
         val email: String = "",
-        val password: String = "",
     ) {
-        fun toDomain(): User = User(
+        fun toDomain(id: String): User = User(
+            id = id,
             userName = userName,
             email = email,
-            password = password,
         )
     }
 
     private companion object {
         const val USERS_COLLECTION = "users"
+        const val FIELD_USER_NAME = "userName"
     }
 }

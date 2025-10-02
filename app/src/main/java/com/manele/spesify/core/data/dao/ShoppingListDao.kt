@@ -24,7 +24,7 @@ class ShoppingListDao(
                 return@addSnapshotListener
             }
             val lists = snapshot?.documents?.mapNotNull { document ->
-                document.toObject(ShoppingListDocument::class.java)?.toDomain()
+                document.toObject(ShoppingListDocument::class.java)?.toDomain(document.id)
             } ?: emptyList()
             trySend(lists).isSuccess
         }
@@ -38,7 +38,9 @@ class ShoppingListDao(
                     close(error)
                     return@addSnapshotListener
                 }
-                val shoppingList = snapshot?.toObject(ShoppingListDocument::class.java)?.toDomain()
+                val shoppingList = snapshot?.let { document ->
+                    document.toObject(ShoppingListDocument::class.java)?.toDomain(document.id)
+                }
                 trySend(shoppingList).isSuccess
             }
         awaitClose { registration.remove() }
@@ -47,15 +49,18 @@ class ShoppingListDao(
     suspend fun getShoppingList(userId: String, listId: String): ShoppingList? =
         withContext(dispatcher) {
             val snapshot = listCollection(userId).document(listId).get().await()
-            snapshot.toObject(ShoppingListDocument::class.java)?.toDomain()
+            snapshot.toObject(ShoppingListDocument::class.java)?.toDomain(snapshot.id)
         }
 
     suspend fun upsertShoppingList(userId: String, list: ShoppingList) {
         withContext(dispatcher) {
-            listCollection(userId)
-                .document(list.title)
-                .set(list.toDocument())
-                .await()
+            val collection = listCollection(userId)
+            val documentRef = if (list.id.isBlank()) {
+                collection.document()
+            } else {
+                collection.document(list.id)
+            }
+            documentRef.set(list.toDocument()).await()
         }
     }
 
@@ -99,7 +104,8 @@ class ShoppingListDao(
         val title: String = "",
         val products: List<ProductEntry> = emptyList(),
     ) {
-        fun toDomain(): ShoppingList = ShoppingList(
+        fun toDomain(id: String): ShoppingList = ShoppingList(
+            id = id,
             title = title,
             products = products.associate { it.toDomainPair() },
         )

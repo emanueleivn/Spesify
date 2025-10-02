@@ -3,7 +3,7 @@ package com.manele.spesify.app
 import android.content.Context
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
-
+import com.google.firebase.auth.FirebaseAuth
 /**
  * Entry point for Firebase related dependencies.
  *
@@ -12,8 +12,11 @@ import com.google.firebase.firestore.FirebaseFirestore
  * instance shared across the app.
  */
 class FirebaseComponent(private val context: Context) {
+    val auth: FirebaseAuth by lazy {
+        ensureFirebaseInitialized()
+        FirebaseAuth.getInstance()
+    }
 
-    /** Lazily created [FirebaseFirestore] instance backed by the default Firebase app. */
     val firestore: FirebaseFirestore by lazy {
         ensureFirebaseInitialized()
         FirebaseFirestore.getInstance()

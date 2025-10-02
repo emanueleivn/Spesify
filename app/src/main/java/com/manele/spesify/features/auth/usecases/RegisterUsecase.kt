@@ -7,5 +7,6 @@ import com.manele.spesify.features.auth.domain.repo.AuthorizationRepository
 class RegisterUserUseCase(
     private val repository: AuthorizationRepository,
 ) {
-    suspend operator fun invoke(user: User): AuthResult = repository.register(user)
+    suspend operator fun invoke(user: User, password: String): AuthResult =
+        repository.register(user, password)
 }
